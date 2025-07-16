@@ -1,0 +1,154 @@
+<div class="home-wrapper">
+    <header class="header">
+      <h1>Biblioteca Felipe Recabarren</h1>
+      <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+    </header>
+  
+    <section class="search-section" [formGroup]="filterForm">
+      <input
+        type="text"
+        placeholder="Buscar libro..."
+        formControlName="search"
+        class="search-input"
+      />
+      <button class="add-btn" (click)="openForm()">+ Agregar Libro</button>
+      <button class="add-btn" (click)="exportarCsv()">Exportar Csv</button>
+    </section>
+  
+    <section class="table-section">
+      <table class="books-table">
+        <thead class="hidden-headers">
+          <tr>
+            <th (click)="sortBy('title')">Título</th>
+            <th (click)="sortBy('author')">Autor</th>
+            <th (click)="sortBy('editorial')">Editorial</th>
+            <th (click)="sortBy('genre')">Género</th>
+            <th (click)="sortBy('price')">Precio</th>
+            <th (click)="sortBy('availability')">Disponibilidad</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let book of books">
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.editorial }}</td>
+            <td>{{ book.genre }}</td>
+            <td>${{ book.price }}</td>
+            <td>
+              <span
+                class="status"
+                [class.available]="book.availability"
+                [class.unavailable]="!book.availability"
+                >{{ book.availability ? 'Disponible' : 'No disponible' }}</span
+              >
+            </td>
+            <td>
+              <button class="edit-btn" (click)="openForm(book)" >Editar</button>
+            </td>
+          </tr>
+          <tr *ngIf="books.length === 0">
+            <td colspan="7" class="no-data">No se encontraron libros.</td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <div class="paginator">
+        <button (click)="prevPage()" [disabled]="currentPage === 1">‹</button>
+        <span>Página {{ currentPage }} de {{ totalPages }}</span>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages">›</button>
+      </div>
+    </section>
+  
+    <section class="slide-form" [class.open]="formOpen">
+      <div class="form-header">
+        <h2>{{ selectedBook ? 'Editar Libro' : 'Agregar Libro' }}</h2>
+        <button (click)="closeForm()">✕</button>
+      </div>
+      <form [formGroup]="bookForm" (ngSubmit)="saveBook()" novalidate>
+        <label>
+          Título:
+          <input formControlName="title" />
+          <span
+            class="error"
+            *ngIf="bookForm.get('title')?.invalid && bookForm.get('title')?.touched"
+            >Requerido</span
+          >
+        </label>
+  
+        <label>
+          Autor:
+          <input formControlName="author" />
+          <span
+            class="error"
+            *ngIf="bookForm.get('author')?.invalid && bookForm.get('author')?.touched"
+            >Requerido</span
+          >
+        </label>
+  
+        <label>
+          Editorial:
+          <input formControlName="editorial" />
+          <span
+            class="error"
+            *ngIf="bookForm.get('editorial')?.invalid && bookForm.get('editorial')?.touched"
+            >Requerido</span
+          >
+        </label>
+  
+        <label>
+          Precio:
+          <input formControlName="price" type="text" />
+          <span
+            class="error"
+            *ngIf="bookForm.get('price')?.invalid && bookForm.get('price')?.touched"
+            >
+            Precio inválido (ej: 15000 o 15000.00)
+          </span>
+        </label>
+  
+        <label>
+          Género:
+          <select formControlName="genre">
+            <option value="">Seleccione</option>
+            <option *ngFor="let g of genres" [value]="g">{{ g }}</option>
+          </select>
+          <span
+            class="error"
+            *ngIf="bookForm.get('genre')?.invalid && bookForm.get('genre')?.touched"
+            >Requerido</span
+          >
+        </label>
+  
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="availability" /> Disponible
+        </label>
+  
+        <label>
+          Imagen:
+          <input type="file" (change)="onImageChange($event)" accept="image/*" />
+        </label>
+        <div *ngIf="bookForm.value.imageurl" class="image-preview" style="height: 150px; width: 200px;">
+          <img [src]="bookForm.value.imageurl" alt="Preview" style="    height: 150px;
+    width: 100%;"/>
+        </div>
+  
+        <div style="    display: flex
+        ;
+            justify-content: space-evenly;
+            align-items: center;
+            margin-bottom: 2rem;
+            width: 100%;">
+          <button type="submit" [disabled]="bookForm.invalid" style="width: 50%; margin-right: 1rem;">
+            {{ selectedBook ? 'Actualizar' : 'Crear' }}
+          </button>
+        
+          <button type="button" *ngIf="selectedBook" (click)="deleteBook(selectedBook.id)" style="width: 50%;" class="btn-eliminar">
+            Eliminar
+          </button>
+        </div>
+        
+      </form>
+    </section>
+  </div>
+  
